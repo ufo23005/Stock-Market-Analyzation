@@ -1122,7 +1122,7 @@ if __name__ == "__main__":
     scraper = NewsScraper()
 
     try:
-        # 抓取Followin 快訊
+        # 輸出格式 ['Date', 'Title', 'Url', 'Content', 'tags_combined', 'Domain']
         news_data = scraper.Followin_Flash_News()
         # news_data = scraper.Followin_Breaking_News()
         # news_data = scraper.PANews_Chosen()
