@@ -156,7 +156,6 @@ class NewsScraper:
 
             # 將所有新聞連結取出
             news_urls = [link.get_attribute("href") for link in links]
-            print(news_urls)
 
             for url in news_urls:
                 driver.get(url)
@@ -1122,9 +1121,9 @@ if __name__ == "__main__":
     scraper = NewsScraper()
 
     try:
-        # 輸出格式 ['Date', 'Title', 'Url', 'Content', 'tags_combined', 'Domain']
-        news_data = scraper.Followin_Flash_News()
-        # news_data = scraper.Followin_Breaking_News()
+        # 抓取Followin 快訊
+        # news_data = scraper.Followin_Flash_News()
+        news_data = scraper.Followin_Breaking_News()
         # news_data = scraper.PANews_Chosen()
         # news_data = scraper.PANews_New_Project()
         # news_data = scraper.PANews_DeFi()
