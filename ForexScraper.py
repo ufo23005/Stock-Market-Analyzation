@@ -18,8 +18,8 @@ class ForexScraper:
         options.add_experimental_option('detach', True)
         
         # # 設置其他參數
-        options.add_argument('--headless')
-        options.add_argument('--no-sandbox')
+        # options.add_argument('--headless')
+        # options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--disable-gpu')
         options.add_argument('--window-size=1920,1080')
@@ -63,47 +63,51 @@ class ForexScraper:
             return raw_date
     def Scrape_News(self):
         """
-        https://tw.stock.yahoo.com/reporter/
-        抓取 Yahoo 新聞頁面上的標題和內容
+        https://www.investing.com/news/headlines
+        抓取 investing 新聞頁面上的標題和內容
         """
         all_news = []
         driver = self.driver
         try:
-            self.driver.get("https://tw.stock.yahoo.com/reporter/")  # 開啟 Yahoo 新聞頁面
+            self.driver.get("https://www.investing.com/news/headlines")  # 開啟新聞頁面
             # WebDriverWait(driver, 10).until(
             #     EC.presence_of_element_located((By.ID, 'caas-lead-header-undefined'))
             #     )
             # 滑動網頁到最底
-            for i in range(0, 6):
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                time.sleep(1)
+            # for i in range(0, 6):
+            #     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            #     time.sleep(1)
 
             # 計算有幾篇新聞
-            Outer_table = driver.find_element(By.ID, 'YDC-Stream')
+            sections = driver.find_elements(By.CSS_SELECTOR, ".border-b.border-\\[\\#E6E9EB\\].pb-5.pt-4.first\\:pt-0")
             
-            links = Outer_table.find_elements(By.CSS_SELECTOR, "a.Fw\\(b\\)")
             
-            news_urls = [link.get_attribute('href') for link in links]
-            
+            news_urls=[]
+            for section in sections:
+                links = section.find_elements(By.CSS_SELECTOR, "a.mb-2.inline-block.text-sm.font-semibold.hover\\:underline.sm\\:text-base.sm\\:leading-6")
+                for link in links:
+                    href = link.get_attribute('href')  # 提取 href 屬性
+                    if href:
+                        news_urls.append(href)
+            print(news_urls)
             print(len(news_urls))
-            
-            # if news_urls:
-            #     url=news_urls[0]
-            for url in news_urls:
+            if news_urls:
+                url=news_urls[0]
+            # for url in news_urls:
                 driver.get(url)
                 try:
-                    title = driver.find_element(By.ID, 'caas-lead-header-undefined').text
+                    title = driver.find_element(By.ID, 'articleTitle').text
                 except:
                     title = ''
 
                 try:
-                    date = self.extract_date(driver.find_element(By.CLASS_NAME, 'caas-attr-time-style').text)
+                    date = self.extract_date(driver.find_element(By.CSS_SELECTOR, 'flex.flex-row.items-center').text)
                 except:
                     date = ''
 
                 try:
                     # 抓取包含內容的主容器
-                    main_container = self.driver.find_element(By.CLASS_NAME, "caas-body")
+                    main_container = self.driver.find_element(By.CSS_SELECTOR, "div.article_WYSIWYG__O0uhw.article_articlePage__UMz3q.text-\\[18px\\].leading-8")
                     
                     # 從主容器中抓取所有 <p> 標籤
                     paragraphs = main_container.find_elements(By.TAG_NAME, "p")
@@ -123,11 +127,11 @@ class ForexScraper:
                         'Url': url,
                         'Content': content,
                         'tags_combined': '',
-                        'Domain': 'StockNewsdata'
+                        'Domain': 'ForexNewsdata'
                     }
                     all_news.append(new_information)
 
-            #     # 返回頁面 爬yahoo股市不需要
+            #     # 返回頁面 爬外匯股市不需要
             #     #driver.back()
 
             return all_news
@@ -143,9 +147,9 @@ class ForexScraper:
 
 # 測試 YahooNewsScraper 類別
 if __name__ == "__main__":
-    yahoo_scraper = YahooNewsScraper()
+    forexscraper = ForexScraper()
     try:
-        news_data = yahoo_scraper.Scrape_News()
+        news_data = forexscraper.Scrape_News()
         if not news_data:  # 檢查是否抓到資料
             print("沒有抓取到任何新聞資料！")
         for news_item in news_data:
@@ -159,4 +163,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"程式執行時發生錯誤: {e}")
     finally:
-        yahoo_scraper.close_driver()
+        forexscraper.close_driver()
