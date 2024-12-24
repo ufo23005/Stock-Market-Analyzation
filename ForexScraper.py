@@ -33,11 +33,17 @@ class ForexScraper:
     @staticmethod
     def extract_date(raw_text):
         """
-        從文字中提取日期
-        如：[PA一線 ｜2024-12-15 13:23] 提取為 2024-12-15
+        從文字中提取日期，返回標準格式 YYYY-MM-DD。
         """
-        match = re.search(r'\d{4}-\d{2}-\d{2}', raw_text)
-        return match.group(0) if match else raw_text
+        try:
+            # 匹配日期格式，例如 12/24/2024
+            match = re.search(r'(\d{2})/(\d{2})/(\d{4})', raw_text)
+            if match:
+                month, day, year = match.groups()
+                return f"{year}-{month}-{day}"  # 返回標準格式
+        except Exception as e:
+            print(f"解析日期時發生錯誤: {e}")
+        return None  # 若未找到日期，返回 None
 
     @staticmethod
     def process_date(raw_date):
@@ -89,7 +95,7 @@ class ForexScraper:
                     href = link.get_attribute('href')  # 提取 href 屬性
                     if href:
                         news_urls.append(href)
-            print(news_urls)
+            # print(news_urls)
             print(len(news_urls))
             if news_urls:
                 url=news_urls[0]
@@ -101,7 +107,13 @@ class ForexScraper:
                     title = ''
 
                 try:
-                    date = self.extract_date(driver.find_element(By.CSS_SELECTOR, 'flex.flex-row.items-center').text)
+                    # 抓取所有日期
+                    date_elements = driver.find_elements(By.CSS_SELECTOR, 'div.flex.flex-row.items-center > span')
+                    raw_dates = [elem.text.strip() for elem in date_elements if any(char.isdigit() for char in elem.text)]
+                    
+                    # 提取並選擇最新日期
+                    parsed_dates = [self.extract_date(date) for date in raw_dates]
+                    date = max(parsed_dates) if parsed_dates else ''
                 except:
                     date = ''
 
