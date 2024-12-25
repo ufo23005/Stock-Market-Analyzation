@@ -18,8 +18,8 @@ class ForexScraper:
         options.add_experimental_option('detach', True)
         
         # # 設置其他參數
-        # options.add_argument('--headless')
-        # options.add_argument('--no-sandbox')
+        options.add_argument('--headless')
+        options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--disable-gpu')
         options.add_argument('--window-size=1920,1080')
@@ -67,7 +67,7 @@ class ForexScraper:
         else:
             # 如果都不是直接返回原值
             return raw_date
-    def Scrape_News(self):
+    def Scrape_investing_News(self):
         """
         https://www.investing.com/news/headlines
         抓取 investing 新聞頁面上的標題和內容
@@ -80,9 +80,9 @@ class ForexScraper:
             #     EC.presence_of_element_located((By.ID, 'caas-lead-header-undefined'))
             #     )
             # 滑動網頁到最底
-            # for i in range(0, 6):
-            #     driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            #     time.sleep(1)
+            for i in range(0, 6):
+                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+                time.sleep(1)
 
             # 計算有幾篇新聞
             sections = driver.find_elements(By.CSS_SELECTOR, ".border-b.border-\\[\\#E6E9EB\\].pb-5.pt-4.first\\:pt-0")
@@ -96,10 +96,10 @@ class ForexScraper:
                     if href:
                         news_urls.append(href)
             # print(news_urls)
-            print(len(news_urls))
-            if news_urls:
-                url=news_urls[0]
-            # for url in news_urls:
+            # print(len(news_urls))
+            # if news_urls:
+            #     url=news_urls[0]
+            for url in news_urls:
                 driver.get(url)
                 try:
                     title = driver.find_element(By.ID, 'articleTitle').text
@@ -149,6 +149,8 @@ class ForexScraper:
             return all_news
         except Exception as e:
             print(f"錯誤:{e}")
+
+    
     def close_driver(self):
         '''
         關閉瀏覽器
@@ -157,11 +159,11 @@ class ForexScraper:
             self.driver.quit()
 
 
-# 測試 YahooNewsScraper 類別
+# 測試 ForexScraper 類別
 if __name__ == "__main__":
     forexscraper = ForexScraper()
     try:
-        news_data = forexscraper.Scrape_News()
+        news_data = forexscraper.Scrape_investing_News()
         if not news_data:  # 檢查是否抓到資料
             print("沒有抓取到任何新聞資料！")
         for news_item in news_data:
