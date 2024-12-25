@@ -95,10 +95,10 @@ class ForexScraper:
                     href = link.get_attribute('href')  # 提取 href 屬性
                     if href:
                         news_urls.append(href)
-            # print(news_urls)
-            # print(len(news_urls))
-            # if news_urls:
-            #     url=news_urls[0]
+            # print(news_urls) #測試連結
+            # print(len(news_urls)) #輸出連結數量
+            # if news_urls: #-----------
+            #     url=news_urls[0]#-----測試第一篇連結資料抓取
             for url in news_urls:
                 driver.get(url)
                 try:
